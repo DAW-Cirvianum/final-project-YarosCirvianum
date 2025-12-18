@@ -1,0 +1,17 @@
+============================================ DESPRES DE CANVIS
+
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+php artisan view:clear
+
+============================================ DATABASE Script creació de la DB:
+
+CREATE DATABASE inventory CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER 'yaros'@'localhost' IDENTIFIED BY '1234';
+
+GRANT ALL PRIVILEGES ON inventory.* TO 'yaros'@'localhost';
+
+FLUSH PRIVILEGES;
+EXIT;
