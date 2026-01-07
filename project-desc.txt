@@ -1,0 +1,41 @@
+----- Tables -----
+- Users (id, password, username, email)
+- Owners (id, owner_name, email, department, location)
+- Devices (id, owner_name_id, location_id, contract_id, provider_id, brand, model, serial_number)
+- RentalContracts (id, provider_id, contract_number, name_pdf, start_date, finish_date)
+- Invoices (id, provider_id, invoice_number, name_pdf) // Posar a RentalContracts?
+- Provider (id, name, address)
+- OwnerHistory (id)
+- DeviceIncidents ()
+- LegacyDevices (device_id)
+
+----- Functionalities -----
+CRUD
+- Create (Devices, Owners, RentalContracts, upload - Invoices, Providers)
+- Modify (Devices, Owners, RentalContracts, Providers)
+- Delete??? (Devices, Owners, RentalContracts, delete - Invoices, Providers)
+- List   (Devices, Owners, RentalContracts, view   - Invoices, Providers)
+
+----- Admin Functionalities -----
+User management
+● The admin can view the list of users.
+● Update user data.
+● Activate, deactivate or delete accounts.
+● Access protected pages rendered with Blade.
+
+
+Passos LARAVEL:
+
+- Crear taules
+- Crear els Models
+    fer lo de $fillable
+    model de User s'ha de posar use noseque per fer tokens
+- Crear Controllers
+    Fer el CRUD
+- Crear Rutes
+    Fer una funcio del Controller -> fer la ruta per veure que Functionalities
+    Primer posar totes publiques i despres ja fer les privades
+    Tot es posa a routes/api.php
+
+
+Passos REACT:
