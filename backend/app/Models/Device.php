@@ -91,5 +91,4 @@ class Device extends Model
     {
         return $query->where('status', 'in_stock');
     }
-
 }
