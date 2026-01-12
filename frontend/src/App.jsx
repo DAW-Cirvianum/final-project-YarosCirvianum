@@ -1,21 +1,9 @@
-import { useEffect, useState } from "react";
-
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    fetch("http://final-project.local/api/test")
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => setMessage("Error al connectar amb API"));
-  }, []);
-
   return (
-    <div>
-      <h1>Prova Laravel + React</h1>
-      <p>{message}</p>
+    <div className="h-screen flex items-center justify-center bg-gray-100">
+      <h1 className="text-4xl font-bold text-blue-600">React + Tailwind funciona!</h1>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
