@@ -1,17 +1,21 @@
-import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import DevicesList from "../components/DevicesList";
 
 export default function Dashboard() {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar />
-        <div className="p-6 bg-gray-100 flex-1">
+
+        <main className="flex-1 overflow-y-auto p-6">
           <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-          <p className="mt-4">Aquí aniran els continguts de l’inventari...</p>
-        </div>
+
+          <DevicesList />
+        </main>
       </div>
     </div>
-  )
+  );
 }

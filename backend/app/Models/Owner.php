@@ -4,16 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Owner extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // ===== Valors per defecte, que no cal posar si ja és aixi, ho poso per l'exemple. =====
     protected $table = 'owners';
-    protected $primaryKey = 'id';
-
-    // Camps assignables en mass-assignment
 
     protected $fillable = [
         'owner_name',
@@ -26,36 +23,33 @@ class Owner extends Model
         'is_active',
     ];
 
-    // Casts automatics
-
     protected $casts = [
-        'is_active' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        'is_active'   => 'boolean',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+        'deleted_at'  => 'datetime',
     ];
 
     protected $attributes = [
-        'is_active' => 1,
+        'is_active' => true,
     ];
 
-    // ===== Query Scopes =====
+    // ===== Relacions =====
+
+    public function devices()
+    {
+        return $this->hasMany(Device::class, 'owner_id');
+    }
+
+    // ===== Scopes =====
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', 1);
+        return $query->where('is_active', true);
     }
 
     public function scopeInactive($query)
     {
-        return $query->where('is_active', 0);
-    }
-
-    // ===== Relacions =====
-
-    // Un Owner pot tenir molts dispositius
-    public function devices()
-    {
-        return $this->hasMany(Device::class);
+        return $query->where('is_active', false);
     }
 }

@@ -10,11 +10,7 @@ class RentalContract extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // ===== Valors per defecte, que no cal posar si ja és aixi, ho poso per l'exemple. =====
     protected $table = 'rental_contracts';
-    protected $primaryKey = 'id';
-
-    // Camps assignables en mass-assignment
 
     protected $fillable = [
         'provider_id',
@@ -33,17 +29,22 @@ class RentalContract extends Model
         'end_date'     => 'date',
         'monthly_cost' => 'decimal:2',
     ];
-    
+
     // ===== Relacions =====
 
     public function provider()
     {
-        return $this->belongsTo(Provider::class);
+        return $this->belongsTo(Provider::class, 'provider_id');
     }
 
-    // ===== Query Scopes =====
+    public function devices()
+    {
+        return $this->hasMany(Device::class, 'rental_contract_id');
+    }
 
-    public function activeScope($query)
+    // ===== Scopes =====
+
+    public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }

@@ -9,11 +9,7 @@ class Provider extends Model
 {
     use HasFactory;
 
-    // ===== Valors per defecte, que no cal posar si ja és aixi, ho poso per l'exemple. =====
     protected $table = 'providers';
-    protected $primaryKey = 'id';
-
-    // Camps assignables en mass-assignment
 
     protected $fillable = [
         'name',
@@ -25,22 +21,38 @@ class Provider extends Model
         'website',
         'provider_type',
         'notes',
+        'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
 
+    protected $attributes = [
+        'is_active' => true,
+    ];
 
-    // ===== Scopes =====
-    public function scopeActive($query)
+    // ===== Relacions =====
+
+    public function devices()
     {
-        return $query->where('is_active', 1);
+        return $this->hasMany(Device::class, 'provider_id');
     }
 
-    // ===== Desactivar el Provider =====
+    public function rentalContracts()
+    {
+        return $this->hasMany(RentalContract::class, 'provider_id');
+    }
+
+    // ===== Scopes =====
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     public function deactivate()
     {
-        $this->update(['is_active' => 0]);
+        $this->update(['is_active' => false]);
     }
 }
