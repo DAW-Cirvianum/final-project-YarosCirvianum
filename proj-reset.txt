@@ -1,0 +1,48 @@
+yaros@W11-EST-YAROS:~/projectes/final-project-YarosCirvianum/backend$ 
+
+
+
+# Canvia grup dels directoris de Laravel que necessiten escriptura
+sudo chown -R yaros:www-data storage bootstrap/cache
+
+# Dona permisos de lectura/escriptura al propietari i grup
+sudo chmod -R 775 storage bootstrap/cache
+
+# Opcional: permet que nous fitxers heretin el grup
+sudo find storage bootstrap/cache -type d -exec chmod g+s {} \;
+
+
+
+
+yaros@W11-EST-YAROS:~/projectes/final-project-YarosCirvianum/backend$ 
+
+
+
+
+rm -rf storage/framework/views/*
+php artisan view:clear
+php artisan cache:clear
+php artisan config:clear
+
+
+
+
+   INFO  Compiled views cleared successfully.  
+
+
+   INFO  Application cache cleared successfully.  
+
+
+   INFO  Configuration cache cleared successfully.  
+
+yaros@W11-EST-YAROS:~/projectes/final-project-YarosCirvianum/backend$ 
+
+
+
+
+sudo systemctl restart apache2
+
+
+
+
+yaros@W11-EST-YAROS:~/projectes/final-project-YarosCirvianum/backend$ 
