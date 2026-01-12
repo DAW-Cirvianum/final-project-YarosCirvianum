@@ -11,7 +11,7 @@ class RentalContract extends Model
     use HasFactory, SoftDeletes;
 
     // ===== Valors per defecte, que no cal posar si ja és aixi, ho poso per l'exemple. =====
-    protected $table = 'providers';
+    protected $table = 'rental_contracts';
     protected $primaryKey = 'id';
 
     // Camps assignables en mass-assignment

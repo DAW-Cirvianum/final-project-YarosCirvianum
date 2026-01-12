@@ -5,17 +5,16 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RecoveryController;
+use App\Http\Controllers\Api\DeviceController;
+use App\Http\Controllers\Api\OwnerController;
+use App\Http\Controllers\Api\ProviderController;
+use App\Http\Controllers\Api\RentalContractController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Route::get('/test', function () {
-//     return response()->json([
-//         'status' => 'ok',
-//         'message' => 'HOLA SOC PHP'
-//     ]);
-// });
+// ========== AuthController ==========
 
 // Register
 Route::post('/register', [AuthController::class, 'store']);
@@ -32,5 +31,24 @@ Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware('signed')
     ->name('verification.verify');
 
+// ========== RecoveryController ==========
+
 Route::post('/email/resend', [RecoveryController::class,  'resendVerification'])
     ->middleware('auth:sanctum');
+
+// ========== API Resources ==========
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Devices
+    Route::apiResource('devices', DeviceController::class);
+
+    // Owners
+    Route::apiResource('owners', OwnerController::class);
+
+    // Providers
+    Route::apiResource('providers', ProviderController::class);
+
+    // Rental Contracts
+    Route::apiResource('rental-contracts', RentalContractController::class);
+});
