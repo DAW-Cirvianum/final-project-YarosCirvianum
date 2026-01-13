@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
+// Per expirar el token
+use Carbon\Carbon;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 
@@ -46,10 +49,10 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request)
     {
-        $id      = $request->route('id');
-        $hash    = $request->route('hash');
+        $id       = $request->route('id');
+        $hash     = $request->route('hash');
 
-        $user    = User::findOrFail($id);
+        $user     = User::findOrFail($id);
 
         $userHash = sha1($user->getEmailForVerification());
 
@@ -77,8 +80,8 @@ class AuthController extends Controller
         $user = $request->user();
 
         return response()->json([
-            'message'  => 'User profile information.',
-            'user'     => $user
+            'message'    => 'User profile information.',
+            'user'       => $user
         ], 200);
     }
 
@@ -119,7 +122,12 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $token = $user->createToken('api-token')->plainTextToken;
+        // Afegir expiracio al token
+        $token = $user->createToken(
+            'api-token',
+            ['*'],
+            Carbon::now()->addHours(1)
+        )->plainTextToken;
 
         return response()->json([
             'status'  => true,
