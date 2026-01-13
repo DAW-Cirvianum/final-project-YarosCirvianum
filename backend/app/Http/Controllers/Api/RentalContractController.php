@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Resource
 use App\Http\Resources\RentalContractResource;
+use App\Http\Resources\RentalContractCollection;
 
 class RentalContractController extends Controller
 {
@@ -38,14 +39,12 @@ class RentalContractController extends Controller
             $query->whereDate('end_date', '<=', $request->end_date);
         }
 
-        $contracts = $query
-            ->orderBy('start_date', 'desc')
-            ->get();
+        // Adaptar el return als Collections
+        $perPage = $request->input('per_page', 20);
+        $contracts = $query->orderBy('start_date', 'desc')->paginate($perPage);
 
-        return response()->json([
-            'status' => true,
-            'data'   => RentalContractResource::collection($contracts),
-        ], 200);
+        // Retornar Collection
+        return new RentalContractCollection($contracts);
     }
 
     // POST /api/rental-contracts

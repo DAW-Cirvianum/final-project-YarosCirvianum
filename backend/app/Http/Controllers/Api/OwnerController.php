@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Resource
 use App\Http\Resources\OwnerResource;
+use App\Http\Resources\OwnerCollection;
 
 class OwnerController extends Controller
 {
@@ -22,12 +23,12 @@ class OwnerController extends Controller
             $query->where('is_active', (bool) $request->is_active);
         }
 
-        $owners = $query->orderBy('owner_name')->get();
+        // Adaptar el return als Collections
+        $perPage = $request->input('per_page', 20);
+        $owners = $query->orderBy('owner_name')->paginate($perPage);
 
-        return response()->json([
-            'status' => true,
-            'data'   => OwnerResource::collection($owners),
-        ], 200);
+        // Retornar Collection
+        return new OwnerCollection($owners);
     }
 
     // POST /api/owners

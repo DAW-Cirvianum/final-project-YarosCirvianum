@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Resource
 use App\Http\Resources\DeviceResource;
+use App\Http\Resources\DeviceCollection;
 
 class DeviceController extends Controller
 {
@@ -35,12 +36,12 @@ class DeviceController extends Controller
             $query->where('provider_id', $request->provider_id);
         }
 
-        $devices = $query->orderBy('created_at', 'desc')->get();
+        // Adaptar el return als Collections
+        $perPage = $request->input('per_page', 15);
+        $devices = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return response()->json([
-            'status' => true,
-            'data'   => DeviceResource::collection($devices),
-        ], 200);
+        // Retornar Collection
+        return new DeviceCollection($devices);
     }
 
     public function store(Request $request)

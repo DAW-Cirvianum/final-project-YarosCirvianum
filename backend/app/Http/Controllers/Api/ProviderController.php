@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Resource
 use App\Http\Resources\ProviderResource;
+use App\Http\Resources\ProviderCollection;
 
 class ProviderController extends Controller
 {
@@ -33,11 +34,13 @@ class ProviderController extends Controller
         $providers = $query
             ->orderBy('created_at', 'desc')
             ->get();
+        
+        // Adaptar el return als Collections
+        $perPage = $request->input('per_page', 20);
+        $providers = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return response()->json([
-            'status' => true,
-            'data'   => ProviderResource::collection($providers),
-        ], 200);
+        // Retornar Collection
+        return new ProviderCollection($providers);
     }
 
     // POST /api/providers
