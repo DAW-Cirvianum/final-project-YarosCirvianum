@@ -126,7 +126,7 @@ class AuthController extends Controller
         $token = $user->createToken(
             'api-token',
             ['*'],
-            Carbon::now()->addHours(1)
+            Carbon::now()->addHours(3)
         )->plainTextToken;
 
         return response()->json([

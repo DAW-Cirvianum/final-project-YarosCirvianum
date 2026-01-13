@@ -7,6 +7,9 @@ use App\Models\Owner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+// Resource
+use App\Http\Resources\OwnerResource;
+
 class OwnerController extends Controller
 {
     // GET /api/owners
@@ -23,7 +26,7 @@ class OwnerController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $owners,
+            'data'   => OwnerResource::collection($owners),
         ], 200);
     }
 
@@ -54,7 +57,7 @@ class OwnerController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Owner created successfully.',
-            'data'    => $owner,
+            'data'    => new OwnerResource($owner),
         ], 201);
     }
 
@@ -73,7 +76,7 @@ class OwnerController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $owner,
+            'data'   => new OwnerResource($owner),
         ], 200);
     }
 
@@ -113,7 +116,7 @@ class OwnerController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Owner updated successfully.',
-            'data'    => $owner,
+            'data'    => new OwnerResource($owner),
         ], 200);
     }
 

@@ -9,6 +9,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+// Resource
+use App\Http\Resources\ProviderResource;
+
 class ProviderController extends Controller
 {
     // GET /api/providers
@@ -33,7 +36,7 @@ class ProviderController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $providers,
+            'data'   => ProviderResource::collection($providers),
         ], 200);
     }
 
@@ -64,7 +67,7 @@ class ProviderController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Provider created successfully!',
-            'data'    => $provider,
+            'data'    => new ProviderResource($provider),
         ], 201);
     }
 
@@ -84,7 +87,7 @@ class ProviderController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $provider,
+            'data'   => new ProviderResource($provider),
         ], 200);
     }
 
@@ -124,7 +127,7 @@ class ProviderController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Provider updated successfully.',
-            'data'    => $provider,
+            'data'    => new ProviderResource($provider),
         ], 200);
     }
 

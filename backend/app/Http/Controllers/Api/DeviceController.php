@@ -9,6 +9,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+// Resource
+use App\Http\Resources\DeviceResource;
+
 class DeviceController extends Controller
 {
     public function index(Request $request)
@@ -36,7 +39,7 @@ class DeviceController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $devices,
+            'data'   => DeviceResource::collection($devices),
         ], 200);
     }
 
@@ -82,7 +85,7 @@ class DeviceController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Device created successfully!',
-            'data' => $device->load(['owner', 'provider', 'rentalContract']),
+            'data' => new DeviceResource($device->load(['owner', 'provider', 'rentalContract'])),
         ], 201);
     }
 
@@ -102,7 +105,7 @@ class DeviceController extends Controller
 
         return response()->json([
             'status' => true,
-            'data' => $device,
+            'data' => new DeviceResource($device),
         ], 200);
     }
 
@@ -160,7 +163,7 @@ class DeviceController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Device updated successfully.',
-            'data'    => $device->load(['owner', 'provider', 'rentalContract']),
+            'data'    => new DeviceResource($device->load(['owner', 'provider', 'rentalContract'])),
         ], 200);
     }
 

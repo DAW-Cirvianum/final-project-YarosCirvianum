@@ -1,89 +1,73 @@
-import { useState, useEffect } from "react";
-import { useFetch } from "./useFetch";
+import { useEffect, useState } from "react";
 
-export default function Device({ id, onClose }) {
+export default function DeviceModal({ device, onClose, onSaved }) {
   const token = localStorage.getItem("token");
-  const { data, loading, error } = useFetch(
-    `http://final-project.local/api/devices/${id}`,
-    token
-  );
-
-  const [formData, setFormData] = useState(null);
+  const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(null);
+  const [error, setError] = useState(null);
 
+  // Quan carreguem device, omplim el form amb tots els camps menys id i deleted_at
   useEffect(() => {
-    if (data && data.data) {
-      // Excloem els camps que no vols mostrar
-      const { id, created_at, updated_at, deleted_at, ...rest } = data.data;
-      setFormData(rest);
+    if (device) {
+      const { id, deleted_at, ...rest } = device;
+      setForm(rest);
+    } else {
+      setForm({}); // modal de crear device
     }
-  }, [data]);
+  }, [device]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleSave = async () => {
+  const save = async () => {
     setSaving(true);
-    setSaveError(null);
+    setError(null);
+
+    const url = device
+      ? `http://final-project.local/api/devices/${device.id}`
+      : `http://final-project.local/api/devices`;
+    const method = device ? "PUT" : "POST";
 
     try {
-      const res = await fetch(`http://final-project.local/api/devices/${id}`, {
-        method: "PUT",
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
 
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || "Save failed");
 
-      onClose(); // Tanquem modal després de salvar
+      onSaved();
+      onClose();
     } catch (err) {
-      setSaveError(err.message);
+      setError(err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading || !formData) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-        <p className="bg-white p-4 rounded shadow">Loading device...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-        <p className="bg-white p-4 rounded shadow text-red-500">
-          Error loading device: {error.message}
-        </p>
-      </div>
-    );
-  }
+  if (!form || Object.keys(form).length === 0) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 overflow-y-auto max-h-[90vh]">
         <h2 className="text-xl font-semibold mb-4">
-          Device Details - {formData.brand} {formData.model}
+          {device ? "Edit Device" : "Create Device"}
         </h2>
 
-        {saveError && (
-          <p className="text-red-500 mb-2">Error saving: {saveError}</p>
-        )}
+        {error && <p className="text-red-500 mb-2">Error: {error}</p>}
 
         <div className="grid grid-cols-2 gap-4">
-          {Object.entries(formData).map(([key, value]) => {
+          {Object.entries(form).map(([key, value]) => {
             if (typeof value === "boolean") {
               return (
                 <div key={key} className="flex items-center">
@@ -121,14 +105,14 @@ export default function Device({ id, onClose }) {
             onClick={onClose}
             className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
           >
-            Cancel
+            Discard
           </button>
           <button
-            onClick={handleSave}
+            onClick={save}
             disabled={saving}
             className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Saving..." : "Save changes"}
           </button>
         </div>
       </div>

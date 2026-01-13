@@ -9,6 +9,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+// Resource
+use App\Http\Resources\RentalContractResource;
+
 class RentalContractController extends Controller
 {
     // GET /api/rental-contracts
@@ -41,7 +44,7 @@ class RentalContractController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $contracts,
+            'data'   => RentalContractResource::collection($contracts),
         ], 200);
     }
 
@@ -75,7 +78,7 @@ class RentalContractController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Rental contract created successfully.',
-            'data'    => $contract->load('provider'),
+            'data'    => new RentalContractResource($contract->load('provider')),
         ], 201);
     }
 
@@ -95,7 +98,7 @@ class RentalContractController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => $contract,
+            'data'   => new RentalContractResource($contract),
         ], 200);
     }
 
@@ -138,7 +141,7 @@ class RentalContractController extends Controller
         return response()->json([
             'status'  => true,
             'message' => 'Rental contract updated successfully.',
-            'data'    => $contract->load('provider'),
+            'data'    => new RentalContractResource($contract->load('provider')),
         ], 200);
     }
 

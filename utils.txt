@@ -1,0 +1,14 @@
+- Llistar arxius fills de la carptes i totes les Subcarpetes
+==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== 
+
+
+find . -type f -exec sh -c '
+  for file do
+    echo "============== $file =============="
+    cat "$file"
+    echo
+  done
+' sh {} +
+
+
+==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ====
