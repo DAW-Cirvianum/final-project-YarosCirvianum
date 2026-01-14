@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import { createContext, useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -7,23 +8,24 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // Funció per carregar l'usuari amb el token guardat
+  const loadUser = async () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setLoading(false);
       return;
     }
+    try {
+      const res = await api.get("/profile");
+      setUser(res.data.data);
+    } catch (err) {
+      localStorage.removeItem("token");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    api
-      .get("/user")
-      .then((res) => setUser(res.data))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setUser(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => { loadUser(); }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -32,14 +34,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        loading,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

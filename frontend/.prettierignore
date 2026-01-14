@@ -1,0 +1,9 @@
+src/components/*
+
+
+
+# Arxius de build
+
+dist
+build
+coverage

@@ -2,29 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-// Models
-use App\Models\Provider;
-
 use App\Http\Controllers\Controller;
+use App\Models\Provider;
+use App\Http\Resources\ProviderResource;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
-// Resource
-use App\Http\Resources\ProviderResource;
-use App\Http\Resources\ProviderCollection;
 
 class ProviderController extends Controller
 {
     // GET /api/providers
-    // Llistar tots els proveïdors
-
     public function index(Request $request)
     {
         $query = Provider::query();
 
-        // ===== Filtres opcionals =====
         if ($request->filled('name')) {
-            $query->where('name', 'like', '%' . $request->name . '%');
+            $query->where('name', 'like', "%{$request->name}%");
         }
 
         if ($request->filled('is_active')) {
@@ -32,127 +25,103 @@ class ProviderController extends Controller
         }
 
         $providers = $query
-            ->orderBy('created_at', 'desc')
-            ->get();
-        
-        // Adaptar el return als Collections
-        $perPage = $request->input('per_page', 20);
-        $providers = $query->orderBy('created_at', 'desc')->paginate($perPage);
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 20));
 
-        // Retornar Collection
-        return new ProviderCollection($providers);
+        return ApiResponse::success(
+            ProviderResource::collection($providers),
+            [
+                'pagination' => [
+                    'current_page' => $providers->currentPage(),
+                    'last_page'    => $providers->lastPage(),
+                    'per_page'     => $providers->perPage(),
+                    'total'        => $providers->total(),
+                ],
+            ]
+        );
     }
 
     // POST /api/providers
-    // Crear un nou proveïdor
-
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'            => ['required', 'string', 'max:150', 'unique:providers,name'],
-            'contact_person'  => ['nullable', 'string', 'max:100'],
-            'email'           => ['nullable', 'email', 'max:150'],
-            'phone'           => ['nullable', 'string', 'max:30'],
-            'address'         => ['nullable', 'string', 'max:255'],
-            'notes'           => ['nullable', 'string'],
-            'is_active'       => ['boolean'],
+            'name'           => ['required', 'string', 'max:150', 'unique:providers,name'],
+            'contact_person' => ['nullable', 'string', 'max:100'],
+            'email'          => ['nullable', 'email', 'max:150'],
+            'phone'          => ['nullable', 'string', 'max:30'],
+            'address'        => ['nullable', 'string', 'max:255'],
+            'notes'          => ['nullable', 'string'],
+            'is_active'      => ['boolean'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $provider = Provider::create($validator->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Provider created successfully!',
-            'data'    => new ProviderResource($provider),
-        ], 201);
+        return ApiResponse::success(
+            new ProviderResource($provider),
+            null,
+            201
+        );
     }
 
     // GET /api/providers/{id}
-    // Mostrar un proveïdor concret
-
-    public function show($id)
+    public function show(int $id)
     {
         $provider = Provider::find($id);
 
         if (! $provider) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Provider not found.',
-            ], 404);
+            return ApiResponse::error(['provider' => ['Not found']], 404);
         }
 
-        return response()->json([
-            'status' => true,
-            'data'   => new ProviderResource($provider),
-        ], 200);
+        return ApiResponse::success(
+            new ProviderResource($provider)
+        );
     }
 
     // PUT /api/providers/{id}
-    // Actualitzar un proveïdor
-
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $provider = Provider::find($id);
 
         if (! $provider) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Provider not found.',
-            ], 404);
+            return ApiResponse::error(['provider' => ['Not found']], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'name'            => ['sometimes', 'string', 'max:150', 'unique:providers,name,' . $provider->id],
-            'contact_person'  => ['nullable', 'string', 'max:100'],
-            'email'           => ['nullable', 'email', 'max:150'],
-            'phone'           => ['nullable', 'string', 'max:30'],
-            'address'         => ['nullable', 'string', 'max:255'],
-            'notes'           => ['nullable', 'string'],
-            'is_active'       => ['boolean'],
+            'name'           => ['sometimes', 'string', 'max:150', 'unique:providers,name,' . $provider->id],
+            'contact_person' => ['nullable', 'string', 'max:100'],
+            'email'          => ['nullable', 'email', 'max:150'],
+            'phone'          => ['nullable', 'string', 'max:30'],
+            'address'        => ['nullable', 'string', 'max:255'],
+            'notes'          => ['nullable', 'string'],
+            'is_active'      => ['boolean'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $provider->update($validator->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Provider updated successfully.',
-            'data'    => new ProviderResource($provider),
-        ], 200);
+        return ApiResponse::success(
+            new ProviderResource($provider)
+        );
     }
 
     // DELETE /api/providers/{id}
-    // Soft delete d’un proveidor
-
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $provider = Provider::find($id);
 
         if (! $provider) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Provider not found.',
-            ], 404);
+            return ApiResponse::error(['provider' => ['Not found']], 404);
         }
 
         $provider->delete();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Provider deleted successfully!',
-        ], 200);
+        return ApiResponse::success();
     }
 }

@@ -2,24 +2,26 @@
 
 namespace App\Http\Controllers\Api;
 
-// Models
-use App\Models\Device;
-
 use App\Http\Controllers\Controller;
+use App\Helpers\ApiResponse;
+use App\Models\Device;
+use App\Http\Resources\DeviceResource;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-// Resource
-use App\Http\Resources\DeviceResource;
-use App\Http\Resources\DeviceCollection;
-
 class DeviceController extends Controller
 {
+    // GET /api/devices
     public function index(Request $request)
     {
-        $query = Device::with(['owner', 'provider', 'rentalContract']);
+        $query = Device::with([
+            'owner',
+            'provider',
+            'rentalContract',
+        ]);
 
-        // ===== Filtres opcionals =====
+        // ===== Filtres =====
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -28,22 +30,36 @@ class DeviceController extends Controller
             $query->where('owner_id', $request->owner_id);
         }
 
-        if ($request->filled('device_type')) {
-            $query->where('device_type', $request->device_type);
-        }
-
         if ($request->filled('provider_id')) {
             $query->where('provider_id', $request->provider_id);
         }
 
-        // Adaptar el return als Collections
-        $perPage = $request->input('per_page', 15);
-        $devices = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        if ($request->filled('device_type')) {
+            $query->where('device_type', 'like', "%{$request->device_type}%");
+        }
 
-        // Retornar Collection
-        return new DeviceCollection($devices);
+        if ($request->filled('rental_contract_id')) {
+            $query->where('rental_contract_id', $request->rental_contract_id);
+        }
+
+        $devices = $query
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 20));
+
+        return ApiResponse::success(
+            DeviceResource::collection($devices),
+            [
+                'pagination' => [
+                    'current_page' => $devices->currentPage(),
+                    'last_page'    => $devices->lastPage(),
+                    'per_page'     => $devices->perPage(),
+                    'total'        => $devices->total(),
+                ],
+            ]
+        );
     }
 
+    // POST /api/devices
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -75,53 +91,45 @@ class DeviceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $device = Device::create($validator->validated());
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Device created successfully!',
-            'data' => new DeviceResource($device->load(['owner', 'provider', 'rentalContract'])),
-        ], 201);
+        return ApiResponse::success(
+            new DeviceResource(
+                $device->load(['owner', 'provider', 'rentalContract'])
+            ),
+            null,
+            201
+        );
     }
 
     // GET /api/devices/{id}
-    // Mostrar device concret
-
-    public function show($id)
+    public function show(int $id)
     {
-        $device = Device::with(['owner', 'provider', 'rentalContract'])->find($id);
+        $device = Device::with([
+            'owner',
+            'provider',
+            'rentalContract',
+        ])->find($id);
 
         if (! $device) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Device not found.',
-            ], 404);
+            return ApiResponse::error(['device' => ['Not found']], 404);
         }
 
-        return response()->json([
-            'status' => true,
-            'data' => new DeviceResource($device),
-        ], 200);
+        return ApiResponse::success(
+            new DeviceResource($device)
+        );
     }
 
     // PUT /api/devices/{id}
-    // Actualitzar un dispositiu
-
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $device = Device::find($id);
 
         if (! $device) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Device not found.',
-            ], 404);
+            return ApiResponse::error(['device' => ['Not found']], 404);
         }
 
         $validator = Validator::make($request->all(), [
@@ -153,40 +161,29 @@ class DeviceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $device->update($validator->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Device updated successfully.',
-            'data'    => new DeviceResource($device->load(['owner', 'provider', 'rentalContract'])),
-        ], 200);
+        return ApiResponse::success(
+            new DeviceResource(
+                $device->load(['owner', 'provider', 'rentalContract'])
+            )
+        );
     }
 
     // DELETE /api/devices/{id}
-    // Soft delete
-
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $device = Device::find($id);
 
         if (! $device) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Device not found.',
-            ], 404);
+            return ApiResponse::error(['device' => ['Not found']], 404);
         }
 
         $device->delete();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Device deleted successfully!',
-        ], 200);
+        return ApiResponse::success();
     }
 }

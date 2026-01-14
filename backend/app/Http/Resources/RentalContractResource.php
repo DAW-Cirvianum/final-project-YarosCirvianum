@@ -78,17 +78,6 @@ class RentalContractResource extends JsonResource
             
             // ========== IDs DE RELACIONS ==========
             'provider_id' => $this->provider_id,
-            
-            // ========== LINKS PER A NAVEGACIÓ ==========
-            'links' => [
-                'self' => route('api.rental-contracts.show', $this->id),
-                'provider' => route('api.providers.show', $this->provider_id),
-                'devices' => route('api.devices.index', ['rental_contract_id' => $this->id]),
-                'pdf_download' => 'cal implementar al RentalContractResource.php',
-                // 'pdf_download' => $this->pdf_filename 
-                //     ? route('api.rental-contracts.download', $this->id)
-                //     : null,
-            ],
         ];
     }
     

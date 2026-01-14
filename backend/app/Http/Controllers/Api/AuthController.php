@@ -2,160 +2,149 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Helpers\ApiResponse;
+use App\Models\User;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
-// Per expirar el token
 use Carbon\Carbon;
-
-use App\Http\Controllers\Controller;
-use App\Models\User;
 
 class AuthController extends Controller
 {
+    // POST /api/register
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'       => ['required', 'string', 'max:255'],
-            'username'   => ['required', 'string', 'max:255', 'unique:users,username'],
-            'email'      => ['required', 'string', 'email','max:255', 'unique:users,email'],
-            'password'   => ['required', 'string', 'min:6', 'confirmed'],
+            'name'                  => ['required', 'string', 'max:255'],
+            'username'              => ['required', 'string', 'max:255', 'unique:users,username'],
+            'email'                 => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password'              => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
-        $data = $validator->validate();
-
         $user = User::create([
-            'name'      => $data['name'],
-            'username'  => $data['username'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
+            'name'     => $request->name,
+            'username' => $request->username,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
         $user->sendEmailVerificationNotification();
 
-        return response()->json([
-            'message' => 'User created. Check your email to verify your account.',
-            'user'    => $user,
-        ], 201); // status 201 significa - Created
+        return ApiResponse::success(
+            [
+                'id'       => $user->id,
+                'email'    => $user->email,
+                'verified' => false,
+            ],
+            null,
+            201
+        );
     }
 
-    public function verifyEmail(Request $request)
-    {
-        $id       = $request->route('id');
-        $hash     = $request->route('hash');
-
-        $user     = User::findOrFail($id);
-
-        $userHash = sha1($user->getEmailForVerification());
-
-        if (! hash_equals($hash, $userHash)) {
-            return response()->json([
-                'message' => 'Invalid verification link.',
-            ], 400);
-        }
-
-        if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'message' => 'Email already verified.',
-            ], 200);
-        }
-
-        $user->markEmailAsVerified();
-
-        return response()->json([
-            'message' => 'Email verified successfully.',
-        ], 200);
-    }
-    
-    public function profile(Request $request)
-    {
-        $user = $request->user();
-
-        return response()->json([
-            'message'    => 'User profile information.',
-            'user'       => $user
-        ], 200);
-    }
-
+    // POST /api/login
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login'      => ['required', 'string'],
-            'password'   => ['required', 'string'],
+            'login'    => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (filter_var($request->login, FILTER_VALIDATE_EMAIL)) {
-            $loginWith = 'email';
-        } else {
-            $loginWith = 'username';
-        }
-
         if ($validator->fails()) {
-            return response()->json([
-                'status'   => false,
-                'message'  => 'Validation error',
-                'errors'   => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
-        $user = User::where($loginWith, $request->login)->first();
+        $field = filter_var($request->login, FILTER_VALIDATE_EMAIL)
+            ? 'email'
+            : 'username';
+
+        $user = User::where($field, $request->login)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials',
+            return ApiResponse::error([
+                'credentials' => ['Invalid credentials'],
             ], 401);
         }
 
         if (! $user->hasVerifiedEmail()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Email not verified. Please check your inbox.',
+            return ApiResponse::error([
+                'email' => ['Email not verified'],
             ], 403);
         }
 
-        // Afegir expiracio al token
         $token = $user->createToken(
             'api-token',
             ['*'],
             Carbon::now()->addHours(3)
         )->plainTextToken;
 
-        return response()->json([
-            'status'  => true,
-            'token'   => $token,
-            'user'    => [
-                'email'  => $user->email,
+        return ApiResponse::success([
+            'token' => $token,
+            'user'  => [
+                'id'    => $user->id,
+                'email' => $user->email,
             ],
-        ], 200);
-    }
-
-    public function logout(Request $request)
-    {
-        $user = $request->user();
-        $user->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Logged out successfully.',
         ]);
     }
 
-    // Borrar tots els tokens?
-    // public function logout(Request $request)
-    // {
-    //     $user = $request->user();
-    //     $user->tokens()->delete();
+    // POST /api/logout
+    public function logout(Request $request)
+    {
+        $user = $request->user();
 
-    //     return response()->json([
-    //         'message' => 'Logged out successfully.',
-    //     ]);
-    // }
+        if ($user && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        }
+
+        return ApiResponse::success();
+    }
+
+    // GET /api/profile
+    public function profile(Request $request)
+    {
+        $user = $request->user();
+
+        return ApiResponse::success([
+            'id'       => $user->id,
+            'name'     => $user->name,
+            'username' => $user->username,
+            'email'    => $user->email,
+            'verified' => $user->hasVerifiedEmail(),
+        ]);
+    }
+
+    // GET /api/email/verify/{id}/{hash}
+    public function verifyEmail(Request $request)
+    {
+        $user = User::find($request->route('id'));
+
+        if (! $user) {
+            return ApiResponse::error(['user' => ['Not found']], 404);
+        }
+
+        if (! hash_equals(
+            sha1($user->getEmailForVerification()),
+            $request->route('hash')
+        )) {
+            return ApiResponse::error(['verification' => ['Invalid link']], 400);
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return ApiResponse::success([
+                'verified' => true,
+            ]);
+        }
+
+        $user->markEmailAsVerified();
+
+        return ApiResponse::success([
+            'verified' => true,
+        ]);
+    }
 }

@@ -50,12 +50,6 @@ class OwnerResource extends JsonResource
             'has_assigned_devices' => $this->whenLoaded('devices', function () {
                 return $this->devices->where('status', 'in_use')->count() > 0;
             }),
-            
-            // ========== LINKS PER A NAVEGACIÓ ==========
-            'links' => [
-                'self' => route('api.owners.show', $this->id),
-                'devices' => route('api.devices.index', ['owner_id' => $this->id]),
-            ],
         ];
     }
     

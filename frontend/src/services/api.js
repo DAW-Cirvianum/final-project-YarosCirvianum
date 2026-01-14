@@ -1,15 +1,16 @@
 import axios from "axios";
 
-// URL API Laravel
 const api = axios.create({
   baseURL: "http://final-project.local/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+  // AQUESTA és la clau. False per evitar problemes amb el '*' del backend.
+  withCredentials: false,
 });
 
-// Afegim el token a cada request si existeix
+// Interceptor per injectar el token si existeix
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

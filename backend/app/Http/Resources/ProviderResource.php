@@ -56,13 +56,6 @@ class ProviderResource extends JsonResource
             'has_active_contracts' => $this->whenLoaded('rentalContracts', function () {
                 return $this->rentalContracts->where('status', 'active')->count() > 0;
             }),
-            
-            // ========== LINKS PER A NAVEGACIÓ ==========
-            'links' => [
-                'self' => route('api.providers.show', $this->id),
-                'devices' => route('api.devices.index', ['provider_id' => $this->id]),
-                'rental_contracts' => route('api.rental-contracts.index', ['provider_id' => $this->id]),
-            ],
         ];
     }
     

@@ -1,23 +1,20 @@
+// src/components/layout/Navbar.jsx
 import { useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
 
 export default function Navbar() {
   const { logout, user } = useContext(AuthContext)
-
   return (
-    <div className="flex justify-between items-center bg-blue-600 text-white p-4">
-      <div className="font-bold text-xl">Inventory Panel</div>
-      {user && (
-        <div className="flex items-center gap-4">
-          <span>{user.name}</span>
-          <button
-            onClick={logout}
-            className="bg-red-500 hover:bg-red-600 px-3 py-1 rounded"
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
+    <header className="h-16 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-10">
+      <div className="text-[10px] text-gray-400 uppercase tracking-widest">
+        Active Operator: <span className="text-gray-900 font-bold ml-1">{user?.name}</span>
+      </div>
+      <button 
+        onClick={logout} 
+        className="text-[10px] font-bold text-gray-400 hover:text-red-600 transition-colors uppercase tracking-[0.2em]"
+      >
+        Sign Out
+      </button>
+    </header>
   )
 }

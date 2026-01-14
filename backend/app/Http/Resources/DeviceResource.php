@@ -105,14 +105,6 @@ class DeviceResource extends JsonResource
             'needs_maintenance_soon' => $this->last_maintenance_date 
                 ? now()->diffInMonths($this->last_maintenance_date) >= 6
                 : false,
-            
-            // ========== LINKS PER A NAVEGACIÓ ==========
-            'links' => [
-                'self' => route('api.devices.show', $this->id),
-                'owner' => $this->owner_id ? route('api.owners.show', $this->owner_id) : null,
-                'provider' => $this->provider_id ? route('api.providers.show', $this->provider_id) : null,
-                'rental_contract' => $this->rental_contract_id ? route('api.rental-contracts.show', $this->rental_contract_id) : null,
-            ],
         ];
     }
 

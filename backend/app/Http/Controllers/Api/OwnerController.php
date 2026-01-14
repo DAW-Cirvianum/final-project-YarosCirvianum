@@ -3,144 +3,129 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ApiResponse;
 use App\Models\Owner;
+use App\Http\Resources\OwnerResource;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
-// Resource
-use App\Http\Resources\OwnerResource;
-use App\Http\Resources\OwnerCollection;
 
 class OwnerController extends Controller
 {
     // GET /api/owners
-    // Llistar owners amb filtre opcional active/inactive
     public function index(Request $request)
     {
         $query = Owner::query();
 
-        if ($request->filled('is_active')) {
-            $query->where('is_active', (bool) $request->is_active);
+        // ===== Filtres =====
+        if ($request->filled('name')) {
+            $query->where('owner_name', 'like', "%{$request->name}%");
         }
 
-        // Adaptar el return als Collections
-        $perPage = $request->input('per_page', 20);
-        $owners = $query->orderBy('owner_name')->paginate($perPage);
+        if ($request->filled('email')) {
+            $query->where('email', 'like', "%{$request->email}%");
+        }
 
-        // Retornar Collection
-        return new OwnerCollection($owners);
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        $owners = $query
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 20));
+
+        return ApiResponse::success(
+            OwnerResource::collection($owners),
+            [
+                'pagination' => [
+                    'current_page' => $owners->currentPage(),
+                    'last_page'    => $owners->lastPage(),
+                    'per_page'     => $owners->perPage(),
+                    'total'        => $owners->total(),
+                ],
+            ]
+        );
     }
 
     // POST /api/owners
-    // Crear un nou owner
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'owner_name'   => ['required', 'string', 'max:100'],
-            'email'        => ['required', 'email', 'max:150', 'unique:owners,email'],
-            'department'   => ['required', 'string', 'max:100'],
-            'location'     => ['required', 'string', 'max:100'],
-            'employee_code'=> ['nullable', 'string', 'max:50'],
-            'phone'        => ['nullable', 'string', 'max:20'],
-            'extension'    => ['nullable', 'string', 'max:10'],
-            'is_active'    => ['boolean'],
+            'name'       => ['required', 'string', 'max:150'],
+            'email'      => ['nullable', 'email', 'max:150'],
+            'phone'      => ['nullable', 'string', 'max:30'],
+            'department' => ['nullable', 'string', 'max:100'],
+            'notes'      => ['nullable', 'string'],
+            'is_active'  => ['boolean'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $owner = Owner::create($validator->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Owner created successfully.',
-            'data'    => new OwnerResource($owner),
-        ], 201);
+        return ApiResponse::success(
+            new OwnerResource($owner),
+            null,
+            201
+        );
     }
 
     // GET /api/owners/{id}
-    // Mostrar un owner concret
-    public function show($id)
+    public function show(int $id)
     {
         $owner = Owner::find($id);
 
         if (! $owner) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Owner not found.',
-            ], 404);
+            return ApiResponse::error(['owner' => ['Not found']], 404);
         }
 
-        return response()->json([
-            'status' => true,
-            'data'   => new OwnerResource($owner),
-        ], 200);
+        return ApiResponse::success(
+            new OwnerResource($owner)
+        );
     }
 
     // PUT /api/owners/{id}
-    // Actualitzar un owner
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $owner = Owner::find($id);
 
         if (! $owner) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Owner not found.',
-            ], 404);
+            return ApiResponse::error(['owner' => ['Not found']], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'owner_name'   => ['sometimes', 'string', 'max:100'],
-            'email'        => ['sometimes', 'email', 'max:150', 'unique:owners,email,' . $owner->id],
-            'department'   => ['sometimes', 'string', 'max:100'],
-            'location'     => ['sometimes', 'string', 'max:100'],
-            'employee_code'=> ['nullable', 'string', 'max:50'],
-            'phone'        => ['nullable', 'string', 'max:20'],
-            'extension'    => ['nullable', 'string', 'max:10'],
-            'is_active'    => ['boolean'],
+            'name'       => ['sometimes', 'string', 'max:150'],
+            'email'      => ['nullable', 'email', 'max:150'],
+            'phone'      => ['nullable', 'string', 'max:30'],
+            'department' => ['nullable', 'string', 'max:100'],
+            'notes'      => ['nullable', 'string'],
+            'is_active'  => ['boolean'],
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'errors' => $validator->errors(),
-            ], 422);
+            return ApiResponse::error($validator->errors()->toArray());
         }
 
         $owner->update($validator->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Owner updated successfully.',
-            'data'    => new OwnerResource($owner),
-        ], 200);
+        return ApiResponse::success(
+            new OwnerResource($owner)
+        );
     }
 
     // DELETE /api/owners/{id}
-    // Soft delete (marca is_active = 0)
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $owner = Owner::find($id);
 
         if (! $owner) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Owner not found.',
-            ], 404);
+            return ApiResponse::error(['owner' => ['Not found']], 404);
         }
 
-        // Soft delete real: actualitza is_active i deleted_at
-        $owner->update(['is_active' => 0]);
         $owner->delete();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Owner deleted successfully.',
-        ], 200);
+        return ApiResponse::success();
     }
 }
