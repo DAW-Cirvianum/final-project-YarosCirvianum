@@ -25,6 +25,7 @@ class OwnerResource extends JsonResource
             'department' => $this->department,
             'location' => $this->location,
             'employee_code' => $this->employee_code,
+            'notes' => $this->notes,
             
             // ========== CONTACTE ==========
             'phone' => $this->phone,

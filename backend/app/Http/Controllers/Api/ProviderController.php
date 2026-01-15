@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ProviderController extends Controller
 {
-    // GET /api/providers
     public function index(Request $request)
     {
         $query = Provider::query();
@@ -19,13 +18,11 @@ class ProviderController extends Controller
         if ($request->filled('name')) {
             $query->where('name', 'like', "%{$request->name}%");
         }
-
         if ($request->filled('is_active')) {
             $query->where('is_active', $request->is_active);
         }
 
-        $providers = $query
-            ->orderByDesc('created_at')
+        $providers = $query->orderByDesc('created_at')
             ->paginate($request->integer('per_page', 20));
 
         return ApiResponse::success(
@@ -41,16 +38,20 @@ class ProviderController extends Controller
         );
     }
 
-    // POST /api/providers
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'           => ['required', 'string', 'max:150', 'unique:providers,name'],
+            'name'           => ['required', 'string', 'max:100', 'unique:providers,name'],
             'contact_person' => ['nullable', 'string', 'max:100'],
-            'email'          => ['nullable', 'email', 'max:150'],
-            'phone'          => ['nullable', 'string', 'max:30'],
-            'address'        => ['nullable', 'string', 'max:255'],
-            'notes'          => ['nullable', 'string'],
+            'contact_email'  => ['nullable', 'email', 'max:150'],
+            
+            'contact_phone'  => ['nullable', 'string', 'max:20'],
+            
+            'address'        => ['nullable', 'string', 'max:500'],
+            'tax_id'         => ['nullable', 'string', 'max:50'],
+            'website'        => ['nullable', 'url', 'max:200'], 
+            'provider_type'  => ['nullable', 'string', 'max:20'],
+            'notes'          => ['nullable', 'string', 'max:1000'],
             'is_active'      => ['boolean'],
         ]);
 
@@ -60,43 +61,32 @@ class ProviderController extends Controller
 
         $provider = Provider::create($validator->validated());
 
-        return ApiResponse::success(
-            new ProviderResource($provider),
-            null,
-            201
-        );
+        return ApiResponse::success(new ProviderResource($provider), null, 201);
     }
 
-    // GET /api/providers/{id}
     public function show(int $id)
     {
         $provider = Provider::find($id);
+        if (! $provider) return ApiResponse::error(['provider' => ['Not found']], 404);
 
-        if (! $provider) {
-            return ApiResponse::error(['provider' => ['Not found']], 404);
-        }
-
-        return ApiResponse::success(
-            new ProviderResource($provider)
-        );
+        return ApiResponse::success(new ProviderResource($provider));
     }
 
-    // PUT /api/providers/{id}
     public function update(Request $request, int $id)
     {
         $provider = Provider::find($id);
-
-        if (! $provider) {
-            return ApiResponse::error(['provider' => ['Not found']], 404);
-        }
+        if (! $provider) return ApiResponse::error(['provider' => ['Not found']], 404);
 
         $validator = Validator::make($request->all(), [
-            'name'           => ['sometimes', 'string', 'max:150', 'unique:providers,name,' . $provider->id],
+            'name'           => ['sometimes', 'string', 'max:100', 'unique:providers,name,' . $provider->id],
             'contact_person' => ['nullable', 'string', 'max:100'],
-            'email'          => ['nullable', 'email', 'max:150'],
-            'phone'          => ['nullable', 'string', 'max:30'],
-            'address'        => ['nullable', 'string', 'max:255'],
-            'notes'          => ['nullable', 'string'],
+            'contact_email'  => ['nullable', 'email', 'max:150'],
+            'contact_phone'  => ['nullable', 'string', 'max:20'],
+            'address'        => ['nullable', 'string', 'max:500'],
+            'tax_id'         => ['nullable', 'string', 'max:50'],
+            'website'        => ['nullable', 'url', 'max:200'],
+            'provider_type'  => ['nullable', 'string', 'max:20'],
+            'notes'          => ['nullable', 'string', 'max:1000'],
             'is_active'      => ['boolean'],
         ]);
 
@@ -106,22 +96,15 @@ class ProviderController extends Controller
 
         $provider->update($validator->validated());
 
-        return ApiResponse::success(
-            new ProviderResource($provider)
-        );
+        return ApiResponse::success(new ProviderResource($provider));
     }
 
-    // DELETE /api/providers/{id}
     public function destroy(int $id)
     {
         $provider = Provider::find($id);
-
-        if (! $provider) {
-            return ApiResponse::error(['provider' => ['Not found']], 404);
-        }
+        if (! $provider) return ApiResponse::error(['provider' => ['Not found']], 404);
 
         $provider->delete();
-
         return ApiResponse::success();
     }
 }

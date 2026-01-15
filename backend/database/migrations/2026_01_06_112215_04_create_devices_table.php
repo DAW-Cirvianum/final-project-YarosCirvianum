@@ -33,10 +33,10 @@ return new class extends Migration
             $table->string('status', 20)->default('in_stock');
             
             // Especificacions (text enlloc de json per compatibilitat)
-            $table->text('specifications')->nullable();
+            $table->text('specifications', 1000)->nullable();
             
             // Informacio addicional
-            $table->text('notes')->nullable();
+            $table->text('notes', 1000)->nullable();
             $table->string('assigned_by', 100)->nullable();
             $table->date('last_maintenance_date')->nullable();
             

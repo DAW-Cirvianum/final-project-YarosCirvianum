@@ -19,7 +19,7 @@ class DeviceFactory extends Factory
             'provider_id'         => Provider::inRandomOrder()->first()?->id,
             'rental_contract_id'  => RentalContract::inRandomOrder()->first()?->id,
 
-            'device_type'         => $this->faker->randomElement(['laptop', 'desktop', 'tablet', 'phone']),
+            'device_type'         => $this->faker->randomElement(['laptop', 'desktop', 'tablet', 'phone', 'mouse', 'keyboard', 'mouse_keyboard']),
             'brand'               => $this->faker->randomElement(['Dell', 'HP', 'Lenovo', 'Apple']),
             'model'               => $this->faker->word(),
             'serial_number'       => $this->faker->unique()->bothify('SN-########'),

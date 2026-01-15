@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DeviceController;
 use App\Http\Controllers\Api\OwnerController;
 use App\Http\Controllers\Api\ProviderController;
 use App\Http\Controllers\Api\RentalContractController;
+use App\Http\Controllers\Api\StatsController; // <--- IMPORT AFEGIT
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -55,6 +56,10 @@ Route::post('/email/resend', [RecoveryController::class, 'resendVerification'])
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Dashboard Stats
+    Route::get('/stats/dashboard', [StatsController::class, 'dashboard']) // <--- RUTA AFEGIDA
+        ->name('api.stats.dashboard');
+
     // Devices - amb noms de ruta prefixats amb 'api.'
     Route::apiResource('devices', DeviceController::class)
         ->names([
@@ -95,12 +100,6 @@ Route::middleware('auth:sanctum')->group(function () {
             'update' => 'api.rental-contracts.update',
             'destroy' => 'api.rental-contracts.destroy',
         ]);
-
-    // Opcional: Pots afegir rutes personalitzades amb noms
-    // Route::get('/devices/{id}/incidents', [DeviceController::class, 'incidents'])
-    //     ->name('api.devices.incidents');
-    // Route::get('/owners/{id}/devices', [OwnerController::class, 'devices'])
-    //     ->name('api.owners.devices');
 });
 
 // ========== Ruta de test (sense autenticació per depuració) ==========

@@ -59,7 +59,7 @@ class RentalContractController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'provider_id'   => ['required', 'exists:providers,id'],
-            'contract_code' => ['required', 'string', 'max:100', 'unique:rental_contracts,contract_code'],
+            'contract_number' => ['required', 'string', 'max:100', 'unique:rental_contracts,contract_number'],
             'start_date'    => ['required', 'date'],
             'end_date'      => ['required', 'date', 'after_or_equal:start_date'],
             'status'        => ['required', 'string', 'max:20'],
@@ -110,7 +110,7 @@ class RentalContractController extends Controller
 
         $validator = Validator::make($request->all(), [
             'provider_id'   => ['sometimes', 'exists:providers,id'],
-            'contract_code' => ['sometimes', 'string', 'max:100', 'unique:rental_contracts,contract_code,' . $contract->id],
+            'contract_number' => ['sometimes', 'string', 'max:100', 'unique:rental_contracts,contract_number,' . $contract->id],
             'start_date'    => ['sometimes', 'date'],
             'end_date'      => ['sometimes', 'date', 'after_or_equal:start_date'],
             'status'        => ['sometimes', 'string', 'max:20'],

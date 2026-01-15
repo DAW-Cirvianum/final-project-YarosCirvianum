@@ -1,3 +1,4 @@
+// src/hooks/useSubmit.jsx
 import { useState } from "react";
 import api from "../services/api";
 
@@ -13,8 +14,9 @@ export function useSubmit(url, method = "post", onSuccess) {
       if (onSuccess) onSuccess(res.data.data);
       return { ok: true };
     } catch (err) {
-      if (err.response?.status === 422) {
-        setErrors(err.response.data.errors); // Captura els errors de Laravel
+      // Capturem 401 (Credencials invalides), 403 (No verificat), 422 
+      if (err.response && [422, 401, 403].includes(err.response.status)) {
+        setErrors(err.response.data.errors); 
       }
       return { ok: false };
     } finally {

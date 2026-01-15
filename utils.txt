@@ -1,4 +1,3 @@
-- Llistar arxius fills de la carptes i totes les Subcarpetes
 ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== ==== 
 
 

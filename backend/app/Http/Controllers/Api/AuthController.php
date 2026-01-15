@@ -18,10 +18,11 @@ class AuthController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'                  => ['required', 'string', 'max:255'],
-            'username'              => ['required', 'string', 'max:255', 'unique:users,username'],
-            'email'                 => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password'              => ['required', 'string', 'min:6', 'confirmed'],
+            'name'        => ['required', 'string', 'max:255', 'regex:/^[\pL\s]+$/u'],
+            'username'    => ['required', 'string', 'min:5', 'max:15', 'unique:users,username', 'regex:/^[a-z0-9]+$/'],
+            'email'       => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password'    => ['required', 'string', 'min:4', 'confirmed'],
+            // 'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'],
         ]);
 
         if ($validator->fails()) {
@@ -40,7 +41,10 @@ class AuthController extends Controller
         return ApiResponse::success(
             [
                 'id'       => $user->id,
+                'name'     => $user->name,
+                'username' => $user->username,
                 'email'    => $user->email,
+                'role'     => $user->role,
                 'verified' => false,
             ],
             null,
@@ -52,7 +56,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'login'    => ['required', 'string'],
+            'login'    => ['required', 'min:5', 'string'],
             'password' => ['required', 'string'],
         ]);
 
@@ -87,8 +91,11 @@ class AuthController extends Controller
         return ApiResponse::success([
             'token' => $token,
             'user'  => [
-                'id'    => $user->id,
-                'email' => $user->email,
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'username' => $user->username,
+                'email'    => $user->email,
+                'role'     => $user->role,
             ],
         ]);
     }
@@ -115,6 +122,7 @@ class AuthController extends Controller
             'name'     => $user->name,
             'username' => $user->username,
             'email'    => $user->email,
+            'role'     => $user->role,
             'verified' => $user->hasVerifiedEmail(),
         ]);
     }

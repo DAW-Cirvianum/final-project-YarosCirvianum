@@ -21,6 +21,7 @@ class Owner extends Model
         'phone',
         'extension',
         'is_active',
+        'notes',
     ];
 
     protected $casts = [

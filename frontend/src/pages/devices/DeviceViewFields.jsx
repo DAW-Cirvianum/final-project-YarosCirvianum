@@ -1,5 +1,6 @@
 // src/pages/devices/DeviceViewFields.jsx
 import { useState } from 'react';
+import { formatType } from '../../utils/formatters';
 
 export default function DeviceViewFields({ device }) {
   const [tab, setTab] = useState('General');
@@ -26,7 +27,7 @@ export default function DeviceViewFields({ device }) {
           <>
             <Row label="Owner" val={device.owner?.owner_name} />
             <Row label="Provider" val={device.provider?.name} />
-            <Row label="Type" val={device.device_type} />
+            <Row label="Type" val={formatType(device.device_type)} />
             <Row label="Status" val={device.status} />
             <Row label="Inv. Number" val={device.inventory_number} />
             <Row label="Location" val={device.physical_location} />
@@ -39,6 +40,7 @@ export default function DeviceViewFields({ device }) {
             </div>
           </>
         )}
+        {/* ... Resta igual ... */}
         {tab === 'Docs' && (
           <>
             <Row label="Contract" val={device.rental_contract?.contract_number} />

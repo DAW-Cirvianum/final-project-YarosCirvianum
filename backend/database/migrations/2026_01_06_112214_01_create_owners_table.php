@@ -11,12 +11,13 @@ return new class extends Migration
         Schema::create('owners', function (Blueprint $table) {
             $table->id();
             $table->string('owner_name', 100);
-            $table->string('email', 150)->unique();
-            $table->string('department', 100);
-            $table->string('location', 100);
+            $table->string('email', 150)->nullable()->unique();
+            $table->string('department', 100)->nullable();
+            $table->string('location', 100)->nullable();
             $table->string('employee_code', 50)->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('extension', 10)->nullable();
+            $table->string('notes', 1000)->nullable();
             
             // 1=actiu, 0=inactiu
             $table->unsignedTinyInteger('is_active')->default(1);

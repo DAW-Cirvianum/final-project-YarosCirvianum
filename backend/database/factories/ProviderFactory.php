@@ -19,7 +19,7 @@ class ProviderFactory extends Factory
             'address'         => $this->faker->optional()->address(),
             'tax_id'          => $this->faker->optional()->bothify('TAX-######'),
             'website'         => $this->faker->optional()->url(),
-            'provider_type'   => 'rental',
+            'provider_type'   => $this->faker->randomElement(['rental','lifetime']),
             'notes'           => $this->faker->optional()->sentence(),
             'is_active'       => 1,
         ];
