@@ -27,22 +27,23 @@ class Invoice extends Model
         'is_cancelled',
     ];
 
+    // Casts per compatibilitat amb SQL Server
     protected $casts = [
         'invoice_date' => 'date',
         'due_date'     => 'date',
         'payment_date' => 'date',
 
-        // Booleans (tinyint)
+        // TinyInt -> boolean
         'is_paid'      => 'boolean',
         'is_cancelled' => 'boolean',
 
-        // Decimals
+        // Decimals (assegurem format monetari estricte)
         'amount'       => 'decimal:2',
         'tax_amount'   => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
 
-    // ===== Relacions =====
+    // ===== RELACIONS =====
 
     public function provider()
     {
@@ -51,10 +52,11 @@ class Invoice extends Model
 
     public function rentalContract()
     {
-        return $this->belongsTo(rentalContract::class);
+        return $this->belongsTo(RentalContract::class);
     }
 
-    // ===== Scopes =====
+    // ===== SCOPES (FILTRES RÀPIDS) =====
+
     public function scopePending($query)
     {
         return $query->where('is_paid', false)->where('is_cancelled', false);

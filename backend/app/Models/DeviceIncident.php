@@ -27,16 +27,17 @@ class DeviceIncident extends Model
     ];
 
     // Casts per compatibilitat amb SQL Server
-
     protected $casts = [
         'incident_date'      => 'date',
         'resolved_date'      => 'date',
-        // Booleans
+
+        // TinyInt -> boolean
         'requires_attention' => 'boolean',
         'is_resolved'        => 'boolean',
     ];
 
-    // ===== Relacions =====
+    // ===== RELACIONS =====
+
     public function device()
     {
         return $this->belongsTo(Device::class);
@@ -52,7 +53,8 @@ class DeviceIncident extends Model
         return $this->belongsTo(Owner::class, 'assigned_to_id');
     }
 
-    // ===== SCOPES =====
+    // ===== SCOPES (FILTRES RÀPIDS) =====
+
     public function scopeUnresolved($query)
     {
         return $query->where('is_resolved', false);

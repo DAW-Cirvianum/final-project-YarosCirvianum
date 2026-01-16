@@ -1,0 +1,1566 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Inventory Management API",
+        "description": "Documentació oficial de l'API d'Inventari - Projecte Final",
+        "contact": {
+            "email": "admin@admin.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor Local"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registre d'usuari",
+                "operationId": "2c092ca1d6d7783d3bb34731d01a644f",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "username",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Creat"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login d'usuari",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "login",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "login": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Perfil usuari",
+                "operationId": "94a5f4c5f5e5755cf43698cf9bc49e9d",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/email/verify/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Verificar email",
+                "operationId": "9f2e6865b5056f77d9d30e8324d549fa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/devices": {
+            "get": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Get list of devices with filters",
+                "operationId": "a75d9e7e123258c1e54a0c79e9e2caff",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "owner_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "provider_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "device_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of devices",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Device"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Create a new device",
+                "operationId": "6274e6101f84d18fb00e2cda281342f4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Device"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Device created"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/devices/{id}": {
+            "get": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Show device details",
+                "operationId": "71f4ba9897bb3a10d3fde22ecf6a5558",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Update an existing device",
+                "operationId": "ce1342dc6f1253b4f17981b87f659867",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "physical_location": {
+                                        "type": "string",
+                                        "example": "Repair Center"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "repair"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Screen damaged"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Devices"
+                ],
+                "summary": "Delete a device",
+                "operationId": "14e173161243728b613b47fafae197e1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/owners": {
+            "get": {
+                "tags": [
+                    "Owners"
+                ],
+                "summary": "Obtenir llista de propietaris",
+                "operationId": "44d28782c206624819269395b7f4cd82",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Llista de propietaris",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Owner"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Owners"
+                ],
+                "summary": "Crear un nou propietari",
+                "operationId": "c7eb4ec9f7e6a1b9d7fbe0090cfbb7da",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@doe.com"
+                                    },
+                                    "department": {
+                                        "type": "string",
+                                        "example": "Sales"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Creat correctament"
+                    },
+                    "422": {
+                        "description": "Error de validació"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/owners/{id}": {
+            "get": {
+                "tags": [
+                    "Owners"
+                ],
+                "summary": "Detalls d'un propietari",
+                "operationId": "0ce511882e5365c1c4e09c1be6e59c4f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Owners"
+                ],
+                "summary": "Actualitzar propietari",
+                "operationId": "4b0b6bc791a9fa75f625c9827511f7b8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "department": {
+                                        "type": "string",
+                                        "example": "Human Resources"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Actualitzat correctament"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Owners"
+                ],
+                "summary": "Esborrar propietari",
+                "operationId": "e1cec6afe0543d87ab57e37b41f2b716",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Esborrat correctament"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/providers": {
+            "get": {
+                "tags": [
+                    "Providers"
+                ],
+                "summary": "Obtenir llista de proveïdors",
+                "operationId": "d99e139f235d5222c74789c37512fc95",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filtrar per nom",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "description": "Filtrar per estat actiu (0 o 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Resultats per pàgina",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Llista de proveïdors",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Provider"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Providers"
+                ],
+                "summary": "Crear un nou proveïdor",
+                "operationId": "8d61f862240fcb54ca4379f8211c756f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Provider"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Proveïdor creat"
+                    },
+                    "422": {
+                        "description": "Error de validació"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/providers/{id}": {
+            "get": {
+                "tags": [
+                    "Providers"
+                ],
+                "summary": "Detalls d'un proveïdor",
+                "operationId": "2e8a9bc6272603d6fc877d77d9472c78",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dades del proveïdor"
+                    },
+                    "404": {
+                        "description": "Proveïdor no trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Providers"
+                ],
+                "summary": "Actualitzar un proveïdor existent",
+                "operationId": "9f26750a48584c4e9d4a861e4d024d1c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nou Nom Proveïdor"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Actualitzat correctament"
+                    },
+                    "404": {
+                        "description": "Proveïdor no trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Providers"
+                ],
+                "summary": "Esborrar un proveïdor",
+                "operationId": "1aa03e6dae527bbdd64b73a803e0a142",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Esborrat correctament"
+                    },
+                    "404": {
+                        "description": "Proveïdor no trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/password/forgot": {
+            "post": {
+                "tags": [
+                    "Recovery"
+                ],
+                "summary": "Sol·licitar enllaç de recuperació de contrasenya",
+                "operationId": "d67c4a8e7fd634ef49cf68e6cf4e1b56",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "usuari@exemple.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Enllaç enviat (o simulat per seguretat)"
+                    }
+                }
+            }
+        },
+        "/api/password/reset": {
+            "post": {
+                "tags": [
+                    "Recovery"
+                ],
+                "summary": "Restablir contrasenya amb token",
+                "operationId": "853d536361840cd9a46f301426cf48a6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 6
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Contrasenya restablerta"
+                    },
+                    "400": {
+                        "description": "Token o dades invàlides"
+                    }
+                }
+            }
+        },
+        "/api/email/resend-verification": {
+            "post": {
+                "tags": [
+                    "Recovery"
+                ],
+                "summary": "Reenviar email de verificació",
+                "operationId": "9d413259bbc1f5e08544fe11c8f136fc",
+                "responses": {
+                    "200": {
+                        "description": "Email enviat"
+                    },
+                    "401": {
+                        "description": "No autenticat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/rental-contracts": {
+            "get": {
+                "tags": [
+                    "Rental Contracts"
+                ],
+                "summary": "Llistar contractes de lloguer",
+                "operationId": "841fd125d8a20d900e4fa7cefab75944",
+                "parameters": [
+                    {
+                        "name": "provider_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_from",
+                        "in": "query",
+                        "description": "Data inici des de (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_to",
+                        "in": "query",
+                        "description": "Data fi fins a (YYYY-MM-DD)",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Llista de contractes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/RentalContract"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Rental Contracts"
+                ],
+                "summary": "Crear un nou contracte",
+                "operationId": "249b422fccb6f74244ff2b3b2d1377c4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RentalContract"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Creat correctament"
+                    },
+                    "422": {
+                        "description": "Error de validació"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/rental-contracts/{id}": {
+            "get": {
+                "tags": [
+                    "Rental Contracts"
+                ],
+                "summary": "Detalls d'un contracte",
+                "operationId": "d668c003d65445ebbe421ff0ad9e4781",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Rental Contracts"
+                ],
+                "summary": "Actualitzar contracte",
+                "operationId": "571684f480a67d3da6b8bab63f925c9d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "inactive"
+                                    },
+                                    "monthly_cost": {
+                                        "type": "number",
+                                        "example": 500
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Actualitzat correctament"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Rental Contracts"
+                ],
+                "summary": "Esborrar contracte",
+                "operationId": "6514bef060394910a32febe023b08e74",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Esborrat correctament"
+                    },
+                    "404": {
+                        "description": "No trobat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/stats/dashboard": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Estadístiques globals",
+                "operationId": "9c6e1b07f49c07c3292d1a3c80f890e2",
+                "responses": {
+                    "200": {
+                        "description": "Dades del dashboard",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "devices": {
+                                                    "type": "integer"
+                                                },
+                                                "active_devices": {
+                                                    "type": "integer"
+                                                },
+                                                "owners": {
+                                                    "type": "integer"
+                                                },
+                                                "active_owners": {
+                                                    "type": "integer"
+                                                },
+                                                "providers": {
+                                                    "type": "integer"
+                                                },
+                                                "active_providers": {
+                                                    "type": "integer"
+                                                },
+                                                "contracts": {
+                                                    "type": "integer"
+                                                },
+                                                "active_contracts": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Device": {
+                "title": "Device",
+                "description": "Device model definition",
+                "required": [
+                    "device_type",
+                    "brand",
+                    "model",
+                    "serial_number",
+                    "physical_location",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "device_type": {
+                        "type": "string",
+                        "example": "laptop"
+                    },
+                    "brand": {
+                        "type": "string",
+                        "example": "Dell"
+                    },
+                    "model": {
+                        "type": "string",
+                        "example": "XPS 15"
+                    },
+                    "serial_number": {
+                        "type": "string",
+                        "example": "SN-123456789"
+                    },
+                    "inventory_number": {
+                        "type": "string",
+                        "example": "INV-001",
+                        "nullable": true
+                    },
+                    "physical_location": {
+                        "type": "string",
+                        "example": "Office 101"
+                    },
+                    "status": {
+                        "description": "in_stock, assigned, repair, retired",
+                        "type": "string",
+                        "example": "in_stock"
+                    },
+                    "purchase_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-01"
+                    },
+                    "warranty_end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-01-01"
+                    },
+                    "has_warranty": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "owner_id": {
+                        "type": "integer",
+                        "example": 5,
+                        "nullable": true
+                    },
+                    "provider_id": {
+                        "type": "integer",
+                        "example": 2,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Owner": {
+                "title": "Owner",
+                "description": "Owner model definition",
+                "required": [
+                    "owner_name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "owner_name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john@example.com"
+                    },
+                    "department": {
+                        "type": "string",
+                        "example": "IT"
+                    },
+                    "location": {
+                        "type": "string",
+                        "example": "Barcelona"
+                    },
+                    "employee_code": {
+                        "type": "string",
+                        "example": "EMP-001"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "600123456"
+                    },
+                    "extension": {
+                        "type": "string",
+                        "example": "101"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "example": "Contractat el 2023"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Provider": {
+                "title": "Provider",
+                "description": "Provider model definition",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Tech Solutions S.L."
+                    },
+                    "contact_person": {
+                        "type": "string",
+                        "example": "Joan Garcia",
+                        "nullable": true
+                    },
+                    "contact_email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joan@techsolutions.com",
+                        "nullable": true
+                    },
+                    "contact_phone": {
+                        "type": "string",
+                        "example": "938887766",
+                        "nullable": true
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "Carrer Major 15, Barcelona",
+                        "nullable": true
+                    },
+                    "tax_id": {
+                        "type": "string",
+                        "example": "B12345678",
+                        "nullable": true
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://techsolutions.com",
+                        "nullable": true
+                    },
+                    "provider_type": {
+                        "description": "rental, lifetime, etc.",
+                        "type": "string",
+                        "example": "rental"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "RentalContract": {
+                "title": "RentalContract",
+                "description": "Rental Contract model definition",
+                "required": [
+                    "provider_id",
+                    "contract_number",
+                    "start_date",
+                    "status"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "provider_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "contract_number": {
+                        "type": "string",
+                        "example": "RC-2024-001"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Main Office Lease",
+                        "nullable": true
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-01-01"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2027-01-01",
+                        "nullable": true
+                    },
+                    "monthly_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 450.5,
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "active"
+                    },
+                    "terms": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "notes": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "Model d'usuari del sistema",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Yaros Cirvianum"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "sysadmin"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@admin.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "admin"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Devices",
+            "description": "Devices"
+        },
+        {
+            "name": "Owners",
+            "description": "Owners"
+        },
+        {
+            "name": "Providers",
+            "description": "Providers"
+        },
+        {
+            "name": "Recovery",
+            "description": "Recovery"
+        },
+        {
+            "name": "Rental Contracts",
+            "description": "Rental Contracts"
+        },
+        {
+            "name": "Stats",
+            "description": "Stats"
+        }
+    ]
+}

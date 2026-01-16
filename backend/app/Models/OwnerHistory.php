@@ -9,6 +9,7 @@ class OwnerHistory extends Model
 {
     use HasFactory;
 
+    // Especifiquem la taula perque no segueix la convencio plural (owner_histories)
     protected $table = 'owner_history';
 
     protected $fillable = [
@@ -21,17 +22,20 @@ class OwnerHistory extends Model
         'assignment_notes',
         'return_notes',
         'was_damaged',
-        'needed_maintenace',
+        'needed_maintenance',
     ];
 
+    // Casts per compatibilitat amb SQL Server
     protected $casts = [
-        'assignment_date'    => 'date',
+        'assigned_date'      => 'date',
         'returned_date'      => 'date',
+
+        // TinyInt -> boolean
         'was_damaged'        => 'boolean',
         'needed_maintenance' => 'boolean',
     ];
 
-    // ===== Relacions =====
+    // ===== RELACIONS =====
 
     public function owner()
     {
@@ -43,7 +47,7 @@ class OwnerHistory extends Model
         return $this->belongsTo(Device::class);
     }
 
-    // ===== Scopes =====
+    // ===== SCOPES (FILTRES RÀPIDS) =====
 
     public function scopeActive($query)
     {

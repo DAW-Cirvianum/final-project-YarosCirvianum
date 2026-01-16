@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 
 class ApiResponse
 {
+    // Retorna una resposta d'exit estandarditzada
     public static function success(
         $data = null,
         array $meta = null,
@@ -19,6 +20,7 @@ class ApiResponse
         ], $code);
     }
 
+    // Retorna una resposta d'error controlada
     public static function error(
         array $errors,
         int $code = 422

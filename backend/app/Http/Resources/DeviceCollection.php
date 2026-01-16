@@ -3,15 +3,15 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class DeviceCollection extends BaseCollection
 {
-    /**
-     * Customize the outgoing response for the resource.
-     */
-    public function withResponse($request, $response)
+    // Personalitza la resposta sortint del recurs
+    public function withResponse(Request $request, JsonResponse $response): void
     {
         parent::withResponse($request, $response);
+        
         $response->header('X-Collection-Type', 'DeviceCollection');
     }
 }

@@ -9,68 +9,68 @@ use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
+    // GET /admin/users
     public function index()
     {
-        $users = User::all();
-        return view('admin.users', compact('users'));
+        return view('admin.users', [
+            'users' => User::orderByDesc('id')->get()
+        ]);
     }
 
+    // POST /admin/users
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:4',
-            'role' => 'required|in:user,admin',
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'min:5', 'unique:users,username'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:4'],
+            'role'     => ['required', 'string'],
         ]);
 
-        User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-            'password' => Hash::make($request->password),
-            'email_verified_at' => now(), // Auto verify admins creation
-        ]);
-        
-        return back()->with('success', 'User created successfully.');
+        $validated['password']          = Hash::make($validated['password']);
+        $validated['email_verified_at'] = now();
+
+        User::create($validated);
+
+        return back()->with('msg', 'User created.');
     }
 
+    // PUT /admin/users/{user}
     public function update(Request $request, User $user)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'role' => 'required|in:user,admin',
+        if (auth()->id() === $user->id && $request->role !== 'admin') {
+            return back()->withErrors(['error' => 'You cannot demote yourself!']);
+        }
+
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'min:5', Rule::unique('users')->ignore($user->id)],
+            'email'    => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'role'     => ['required', 'string'],
+            'password' => ['nullable', 'string', 'min:4'],
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-        ];
-
-        // Only update password if provided
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
         }
 
-        $user->update($data);
+        $user->update($validated);
 
-        return back()->with('success', 'User updated successfully.');
+        return back()->with('msg', 'User updated.');
     }
 
+    // DELETE /admin/users/{user}
     public function destroy(User $user)
     {
-        // Prevent self-deletion
         if (auth()->id() === $user->id) {
-            return back()->withErrors(['error' => 'You cannot delete yourself.']);
+            return back()->withErrors(['error' => 'Cannot delete yourself.']);
         }
-        
+
         $user->delete();
-        return back()->with('success', 'User deleted successfully.');
+
+        return back()->with('msg', 'User deleted.');
     }
 }

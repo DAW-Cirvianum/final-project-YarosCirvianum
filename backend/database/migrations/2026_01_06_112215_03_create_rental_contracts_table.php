@@ -18,9 +18,8 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->decimal('monthly_cost', 10, 2)->nullable();
             $table->string('status', 20)->default('active');
-            $table->text('terms', 1000)->nullable();
             $table->text('notes', 1000)->nullable();
-            
+        
             $table->timestamps();
             $table->softDeletes();
             

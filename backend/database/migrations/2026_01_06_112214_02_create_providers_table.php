@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('tax_id', 50)->nullable();
             $table->string('website', 200)->nullable();
             $table->string('provider_type', 20)->default('rental');
-            $table->text('notes', 1000)->nullable();
             $table->unsignedTinyInteger('is_active')->default(1);
             
             $table->timestamps();

@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Registrem l'alias per al middleware d'administrador
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
         ]);

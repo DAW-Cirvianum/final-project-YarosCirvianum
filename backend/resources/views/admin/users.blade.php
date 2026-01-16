@@ -2,104 +2,66 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Users</title>
+    <title>Admin Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen p-8 text-sm">
-    <div class="max-w-6xl mx-auto">
+<body class="bg-gray-100 p-6 font-sans text-sm">
+    <div class="max-w-6xl mx-auto bg-white p-6 shadow-sm border border-gray-200">
         
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
-            <div class="flex items-center gap-4">
-                <a href="http://localhost:5173" class="text-gray-500 hover:text-black underline">Go to React App</a>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="font-bold text-lg uppercase tracking-wider">Administration Panel</h1>
+            <div class="flex gap-4 items-center">
+                <a href="http://localhost:5173" class="text-gray-400 hover:text-black font-bold text-xs uppercase">Go To App</a>
                 <form action="{{ route('admin.logout') }}" method="POST">
-                    @csrf
-                    <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Logout</button>
+                    @csrf <button class="text-red-500 font-bold text-xs uppercase hover:underline">Logout</button>
                 </form>
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="bg-green-100 text-green-800 p-3 rounded mb-4">{{ session('success') }}</div>
-        @endif
-        @if($errors->any())
-            <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
-                <ul class="list-disc pl-4">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        @if(session('msg')) <div class="bg-green-100 text-green-800 p-2 mb-4 rounded text-xs font-bold">{{ session('msg') }}</div> @endif
+        @if($errors->any()) <div class="bg-red-100 text-red-800 p-2 mb-4 rounded text-xs font-bold">{{ $errors->first() }}</div> @endif
 
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
-            <h2 class="font-bold uppercase tracking-widest text-xs text-gray-500 mb-4">Create New User</h2>
-            <form action="{{ route('admin.users.store') }}" method="POST" class="grid grid-cols-6 gap-3">
-                @csrf
-                <input name="name" placeholder="Full Name" class="border border-gray-300 p-2 rounded" required>
-                <input name="username" placeholder="Username" class="border border-gray-300 p-2 rounded" required>
-                <input name="email" type="email" placeholder="Email" class="border border-gray-300 p-2 rounded" required>
-                <input name="password" type="password" placeholder="Password" class="border border-gray-300 p-2 rounded" required>
-                <select name="role" class="border border-gray-300 p-2 rounded bg-white">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button class="bg-blue-600 text-white font-bold rounded hover:bg-blue-700">Create</button>
-            </form>
-        </div>
+        <form action="{{ route('admin.users.store') }}" method="POST" class="flex gap-2 mb-8 bg-gray-50 p-3 rounded border border-gray-200">
+            @csrf
+            <input name="name" placeholder="Name" class="border p-1 rounded w-full" required>
+            <input name="username" placeholder="User" class="border p-1 rounded w-32" required>
+            <input name="email" placeholder="Email" class="border p-1 rounded w-48" required>
+            <select name="role" class="border p-1 rounded bg-white"><option value="user">User</option><option value="admin">Admin</option></select>
+            <input name="password" placeholder="Pass" class="border p-1 rounded w-32" required>
+            <button class="bg-black text-white px-4 rounded font-bold uppercase text-xs">Add</button>
+        </form>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-bold">
-                    <tr>
-                        <th class="p-4">Name</th>
-                        <th class="p-4">Username</th>
-                        <th class="p-4">Email</th>
-                        <th class="p-4">Role</th>
-                        <th class="p-4">New Password (Optional)</th>
-                        <th class="p-4 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach($users as $user)
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <form action="{{ route('admin.users.update', $user) }}" method="POST" id="update-form-{{$user->id}}">
-                            @csrf @method('PUT')
-                            <td class="p-2">
-                                <input name="name" value="{{ $user->name }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none px-1">
-                            </td>
-                            <td class="p-2">
-                                <input name="username" value="{{ $user->username }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none px-1">
-                            </td>
-                            <td class="p-2">
-                                <input name="email" value="{{ $user->email }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none px-1">
-                            </td>
-                            <td class="p-2">
-                                <select name="role" class="bg-transparent text-xs uppercase font-bold {{ $user->role === 'admin' ? 'text-red-600' : 'text-green-600' }}">
-                                    <option value="user" {{ $user->role === 'user' ? 'selected' : '' }}>User</option>
-                                    <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin</option>
-                                </select>
-                            </td>
-                            <td class="p-2">
-                                <input name="password" type="password" placeholder="Change..." class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none px-1 text-xs">
-                            </td>
-                        </form>
+        <table class="w-full text-left">
+            <tr class="text-gray-400 text-xs uppercase border-b"><th class="py-2">Name</th><th>Username</th><th>Email</th><th>Role</th><th>New Pass</th><th class="text-right">Action</th></tr>
+            @foreach($users as $u)
+                <tr class="border-b hover:bg-gray-50">
+                    <form id="form-{{$u->id}}" action="{{ route('admin.users.update', $u) }}" method="POST">
+                        @csrf @method('PUT')
+                    </form>
+
+                    <td class="py-2 pr-2"><input form="form-{{$u->id}}" name="name" value="{{ $u->name }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none"></td>
+                    <td class="pr-2"><input form="form-{{$u->id}}" name="username" value="{{ $u->username }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none"></td>
+                    <td class="pr-2"><input form="form-{{$u->id}}" name="email" value="{{ $u->email }}" class="w-full bg-transparent border-b border-transparent focus:border-blue-500 outline-none"></td>
+                    <td class="pr-2">
+                        <select form="form-{{$u->id}}" name="role" class="bg-transparent font-bold uppercase text-xs {{ $u->role=='admin'?'text-purple-600':'text-gray-600' }}">
+                            <option value="user" {{$u->role=='user'?'selected':''}}>User</option>
+                            <option value="admin" {{$u->role=='admin'?'selected':''}}>Admin</option>
+                        </select>
+                    </td>
+                    <td class="pr-2"><input form="form-{{$u->id}}" name="password" placeholder="Change..." class="w-24 bg-transparent border-b border-transparent focus:border-blue-500 outline-none text-xs"></td>
+                    <td class="text-right flex justify-end gap-3 py-3">
+                        <button form="form-{{$u->id}}" class="text-blue-600 font-bold text-xs uppercase hover:underline">Save</button>
                         
-                        <td class="p-4 flex justify-end gap-3">
-                            <button onclick="document.getElementById('update-form-{{$user->id}}').submit()" class="text-blue-600 font-bold text-xs uppercase hover:underline">Save</button>
-                            
-                            @if(auth()->id() !== $user->id)
-                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                    @csrf @method('DELETE')
-                                    <button class="text-red-500 font-bold text-xs uppercase hover:underline">Delete</button>
-                                </form>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                        @if(auth()->id() !== $u->id)
+                            <form action="{{ route('admin.users.destroy', $u) }}" method="POST" onsubmit="return confirm('Delete?')">
+                                @csrf @method('DELETE')
+                                <button class="text-red-500 font-bold text-xs uppercase hover:underline">Del</button>
+                            </form>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </table>
     </div>
 </body>
 </html>
